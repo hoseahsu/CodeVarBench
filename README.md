@@ -1,4 +1,4 @@
-# TriMut-300 Strict: 300 Public Source Problems and Three Mutation Axes
+# CodeVarBench: 300 Public Source Problems and Three Mutation Axes
 
 Each of the **300 public source problems** in this package exists in four versions — Raw, L1, L2, and L3 — which gives **1,200 statements** in total. The machine-readable entry point is [prompts.jsonl](prompts.jsonl). For a per-seed listing, see [INDEX.md](INDEX.md); programs, tests, and the evidence index are in [seeds.jsonl](seeds.jsonl).
 
