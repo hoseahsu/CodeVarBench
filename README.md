@@ -25,7 +25,7 @@ Official evaluation case occurrences run to **11,325** for Raw, **11,325** for L
 
 **The 300/300 for L2 covers three things only: the scale really is expanded, the inputs are legal, and the reference solution runs through. On 5 seeds we went further and confirmed that "the same slow program passes the original bound and times out on the expanded domain."** On the remaining seeds that confirmation was not made, so they do not support a claim that an algorithmic paradigm shift will occur. The per-seed flag `l2_algorithm_resource_separation_validated` records where it was made. If you are analyzing PSR or an algorithmic transition, work from the calibrated subset alone, or add your own baseline calibration.
 
-The verification used finite tests, small-domain differential comparison against an independent program, structural-case expectations worked out mathematically, and constructive arguments. None of this guarantees an error-free result on every legal input. Some large L3 answers came from efficient reference solutions that we had verified independently on small domains; we did not enumerate those answers case by case. The per-case metadata states which kind of evidence a case actually carries. Records of upstream corrupted tests, failed attempts, reference-program capacity, and platform compatibility fixes are all retained. You will not find target-model accuracy, human blind review, or unexecuted experimental results filled in anywhere.
+The verification used finite tests, small-domain differential comparison against an independent program, structural-case expectations worked out mathematically, and constructive arguments. None of this guarantees an error-free result on every legal input. Some large L3 answers came from efficient reference solutions that we had verified independently on small domains; we did not enumerate those answers case by case. The per-case metadata states which kind of evidence a case actually carries. Records of upstream corrupted tests, failed attempts, reference-program capacity, and platform compatibility fixes are all retained. You will not find human blind review or unexecuted experimental results filled in anywhere. Target-model accuracy does exist in this package, but only as the already-executed runs recorded in [strict_results.csv](strict_results.csv), described in the next section.
 
 ## Getting Started
 
@@ -48,6 +48,24 @@ Drop `--limit` and you evaluate every official case of that condition; `--case N
 
 Generate the four conditions separately: Raw, L1, L2, and L3 each get their own run. L1 borrows Raw's tests; its answers do not come from Raw's run. For paired analysis the seed is the unit, and **1,200 statements are not 1,200 independent source problems**. Keep all four versions of one source problem on the same side of a train/test split, and keep related problem families together as well. The `family_split_groups` field lists the groupings we know about and defaults to `unsplit`; it does not claim to have found every semantic similarity in the set.
 
+## Baseline Runs (`strict_results.csv`)
+
+[strict_results.csv](strict_results.csv) holds **7,200 judged runs** — 300 seeds × 4 conditions × 6 models, one attempt per cell with no retries. Every row records the seed, condition, model, verdict (AC/WA/TLE/RE/CE/SE), per-case breakdown, first failing case, the frozen budget it was judged under, the solution hash, and the timestamp. The totals: **4,636 AC**, 1,943 WA, 272 CE, 194 TLE, 154 RE, and 1 SE.
+
+Headline pass rates (AC / runs):
+
+| | Raw | L1 | L2 | L3 | overall |
+|---|---|---|---|---|---|
+| qwen (qwen3.8-max) | 87.7% | 84.7% | 84.7% | 72.0% | 82.3% |
+| deepseek (deepseek-flash) | 83.7% | 82.7% | 75.7% | 56.0% | 74.5% |
+| qwen3.5-27b | 78.3% | 78.0% | 73.7% | 66.3% | 74.1% |
+| kimi-k3 | 81.0% | 77.0% | 74.7% | 56.0% | 72.2% |
+| glm-5.2 | 72.0% | 67.7% | 66.0% | 42.7% | 62.1% |
+| ollama-deepseek-coder (deepseek-coder-v2:16b) | 24.3% | 24.3% | 21.0% | 15.3% | 21.2% |
+| **all models** | **71.2%** | **69.1%** | **65.9%** | **51.4%** | **64.4%** |
+
+Three readings and their limits. The Raw → L1 drop is small and mostly tracks the harder models; the Raw → L2 drop comes from the expanded test domains; the Raw → L3 drop is the steepest, which is the intended effect of the operator mutations, but it is one attempt per cell and no statistical test has been applied. Each seed carries four correlated conditions, so treat the seed as the unit for any paired comparison; the per-model rows on 300 shared seeds are not 1,200 independent problems either. The runs were produced between 2026-10-23 and 2026-10-24 with the same sandbox and budgets as `tools/judge.py`; the `solution` column stores paths from the evaluation machine, keyed reproducibly by `solution_sha256`. Reproduce a single row with the judge command above; the CSV is a record, not a re-creation script.
+
 ## File Layout
 
 - `tasks/TM001/` … `tasks/TM300/` — four complete statements per seed, plus its provenance and edit certificates, frozen inputs, and answers.
@@ -57,6 +75,7 @@ Generate the four conditions separately: Raw, L1, L2, and L3 each get their own 
 - `sources/` — public source problems, source tests, upstream reference code, and license notes. Snapshots here are never overwritten.
 - `assets/`, `native/`, `library_work/`, `replacements/` — reference solutions, independent decision programs, strict input validators, generators, and reconstruction tools.
 - `recipes/` — reused implementation and comparator helpers. The legacy weak-constraint experiment fields there are historical implementation metadata, and **this package draws nothing from them for statements, constraints, budgets, or evaluation choices**. Those are governed by `seeds.jsonl → evaluation/, contracts/`.
+- `strict_results.csv` — the 7,200 model runs described above: per-row verdicts, budgets, and solution hashes.
 - `release_summary.json` — actual counts, release status, and verification hashes.
 
 Provenance per seed keeps whatever the source gave us: the platform problem ID, the CodeContests row index, or the Library Checker identifier. Where a CodeContests platform link could not be confirmed, we give the dataset link and the source snapshot rather than a guess; a generic dataset homepage is not presented as a link to the specific problem. Each upstream item — statements, images, code — keeps its own original license and copyright, and this local research package adds no blanket redistribution permission on top.
